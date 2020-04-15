@@ -11,10 +11,10 @@ class UnaryExpr    ; // forward declare
 class ExprVisitor {
 public:
     virtual ~ExprVisitor() {}
-    virtual void visitBinaryExpr   (BinaryExpr   * Expr) = 0;
-    virtual void visitGroupingExpr (GroupingExpr * Expr) = 0;
-    virtual void visitLiteralExpr  (LiteralExpr  * Expr) = 0;
-    virtual void visitUnaryExpr    (UnaryExpr    * Expr) = 0;
+    virtual std::any visitBinaryExpr   (BinaryExpr   * Expr) = 0;
+    virtual std::any visitGroupingExpr (GroupingExpr * Expr) = 0;
+    virtual std::any visitLiteralExpr  (LiteralExpr  * Expr) = 0;
+    virtual std::any visitUnaryExpr    (UnaryExpr    * Expr) = 0;
 };
 
 // variables are intentionally public
@@ -22,15 +22,16 @@ public:
 class Expr {
 public:
     virtual ~Expr() {}
-    virtual void accept(ExprVisitor* visitor) = 0;
+
+    virtual std::any accept(ExprVisitor* visitor) = 0;
 };
 
 class BinaryExpr    : public Expr { 
 public: 
     
     BinaryExpr   (Expr* left, Token Operator, Expr* right)  : left(left), Operator(Operator), right(right) {}
-    void accept(ExprVisitor* visitor) override {
-        visitor->visitBinaryExpr   (this);
+    std::any accept(ExprVisitor* visitor) override {
+        return visitor->visitBinaryExpr   (this);
     }
 
 public: 
@@ -43,8 +44,8 @@ class GroupingExpr  : public Expr {
 public: 
 
     GroupingExpr (Expr* expression)  : expression(expression) {}
-    void accept(ExprVisitor* visitor) override {
-        visitor->visitGroupingExpr (this);
+    std::any accept(ExprVisitor* visitor) override {
+        return visitor->visitGroupingExpr (this);
     }
 
 public: 
@@ -55,8 +56,8 @@ public:
 class LiteralExpr   : public Expr { 
 public: 
     LiteralExpr  (std::string value)  : value(value) {}
-    void accept(ExprVisitor* visitor) override {
-        visitor->visitLiteralExpr  (this);
+    std::any accept(ExprVisitor* visitor) override {
+        return visitor->visitLiteralExpr  (this);
     }
 
 public: 
@@ -67,8 +68,8 @@ public:
 class UnaryExpr     : public Expr { 
 public: 
     UnaryExpr    (Token Operator, Expr* right)  : Operator(Operator), right(right) {}
-    void accept(ExprVisitor* visitor) override {
-    visitor->visitUnaryExpr    (this);
+    std::any accept(ExprVisitor* visitor) override {
+        return visitor->visitUnaryExpr    (this);
     }
 
 public: 

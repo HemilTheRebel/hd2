@@ -5,35 +5,40 @@
 #include "expression.hpp"
 
 class ASTPrinter : public ExprVisitor {
-      public:
-        void print(Expr* expr) {
-            return expr->accept(this);
+public:
+    std::any print(Expr* expr) {
+        return expr->accept(this);
+    }
+
+    std::any visitBinaryExpr(BinaryExpr* expr) override {
+        return parenthesize(expr->Operator.lexeme,
+                            {expr->left, expr->right});
+    }
+
+    std::any visitGroupingExpr(GroupingExpr* expr) override {
+        return parenthesize("group", {expr->expression});
+    }
+
+    std::any visitLiteralExpr(LiteralExpr* expr) override {
+        if (expr->value.empty())
+            return "nil";
+        return expr->value;
+    }
+
+    std::any visitUnaryExpr(UnaryExpr* expr) override {
+        return parenthesize(expr->Operator.lexeme, {expr->right});
+    }
+
+    std::any parenthesize(std::string name, std::vector<Expr*> exprs) {
+        std::string pp = "(" + name;
+        
+        for (auto expr : exprs) {
+            pp += " ";
+            pp += std::any_cast<std::string>(expr->accept(this));
         }
-        void visitBinaryExpr(BinaryExpr* expr) override {
-            return parenthesize(expr->Operator.lexeme,
-                                {expr->left, expr->right});
-        }
-        void visitGroupingExpr(GroupingExpr* expr) override {
-            return parenthesize("group", {expr->expression});
-        }
-        void visitLiteralExpr(LiteralExpr* expr) override {
-            if (expr->value.empty())
-                std::cout << "nil";
-            std::cout << " " << expr->value;
-        }
-        void visitUnaryExpr(UnaryExpr* expr) override {
-            return parenthesize(expr->Operator.lexeme, {expr->right});
-        }
-        void parenthesize(std::string name, std::vector<Expr*> exprs) {
-            std::string pp = "(" + name;
-            // print
-            std::cout << pp;
-            for (auto expr : exprs) {
-                expr->accept(this);
-            }
-            std::cout << ")";
-        }
-    };
+        return pp + ")";
+    }
+};
 
 
 // class ASTPrinter : ExprVisitor {

@@ -125,6 +125,11 @@ class Parser {
             if (previous().type == TokenType::SEMICOLON) return;
 
             // other types of enumeration purposely not handled
+
+            // ignoring -Wswitch. Works for both GCC and cland
+
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wswitch"
             switch (peek().type) {
                 case TokenType::CLASS:                            
                 case TokenType::FUN:                              
@@ -136,6 +141,7 @@ class Parser {
                 case TokenType::RETURN:                           
                 return;
             }
+            #pragma GCC diagnostic pop
 
             advance();
         }
