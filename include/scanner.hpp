@@ -49,11 +49,10 @@ class Scanner {
     }
 
     void addToken(TokenType type) {                
-        addToken(type, nullptr);                                
+        addToken(type, "");                                
     }           
 
-    template<typename U>
-    void addToken(TokenType type, U literal) {
+    void addToken(TokenType type, const std::string& literal) {
         std::string text = source.substr(start, current-start);      
         tokens.push_back(Token(type, text, literal, line));
     }
@@ -163,8 +162,7 @@ class Scanner {
             while (isDigit(peek())) advance();
         }
 
-        double d = std::stod(source.substr(start, current - start));
-        addToken(TokenType::NUMBER, d);
+        addToken(TokenType::NUMBER, source.substr(start, current - start));
     }
 
     char peekNext() {
@@ -222,7 +220,7 @@ class Scanner {
             scanToken();
         }
 
-        tokens.push_back(Token(TokenType::EndOfFile, "", nullptr, line));
+        tokens.push_back(Token(TokenType::EndOfFile, "", "", line));
         return tokens;
     }
 

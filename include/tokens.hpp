@@ -3,6 +3,7 @@
 #include <string>
 #include <any>
 #include <sstream>
+#include <vector>
 
 /*
   Copied from stack overflow. This macro defines operator << for enum
@@ -49,14 +50,14 @@ AWESOME_ENUM (TokenType,
 );
 
 class Token {
+
+public:
     TokenType type;
     std::string lexeme;
-    std::any literal;
+    std::string literal;
     int line;
 
-    public:
-
-    Token(TokenType type, const std::string& lexeme, std::any literal, int line)
+    Token(TokenType type, const std::string& lexeme, std::string literal, int line)
     : type(type), lexeme(lexeme), literal(literal), line(line) {}
 
     
@@ -64,16 +65,6 @@ class Token {
 };
 
 std::ostream& operator<<(std::ostream& out, Token t) {
-    std::ostringstream stream;
-
-    if (t.literal.has_value()) {
-        if (t.type == TokenType::NUMBER) {
-            stream << std::any_cast<double>(t.literal);
-        } else if (t.type == TokenType::STRING) {
-            stream << std::any_cast<std::string>(t.literal);
-        }
-    }
-
-    out << t.type << " " << t.lexeme << " " << stream.str();
+    out << t.type << " " << t.lexeme << " " << t.literal;
     return out;
 }
