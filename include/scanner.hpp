@@ -49,7 +49,7 @@ class Scanner {
     }
 
     void addToken(TokenType type) {                
-        addToken(type, "");                                
+        addToken(type,  "");                                
     }           
 
     void addToken(TokenType type, const std::string& literal) {
@@ -62,16 +62,16 @@ class Scanner {
         switch (c)
         {
             // single character lexemes
-            case '(': addToken(TokenType::LEFT_PAREN); break;     
-            case ')': addToken(TokenType::RIGHT_PAREN); break;    
-            case '{': addToken(TokenType::LEFT_BRACE); break;     
-            case '}': addToken(TokenType::RIGHT_BRACE); break;    
-            case ',': addToken(TokenType::COMMA); break;          
-            case '.': addToken(TokenType::DOT); break;            
-            case '-': addToken(TokenType::MINUS); break;          
-            case '+': addToken(TokenType::PLUS); break;           
-            case ';': addToken(TokenType::SEMICOLON); break;      
-            case '*': addToken(TokenType::STAR); break; 
+            case '(': addToken(TokenType::LEFT_PAREN   ); break;     
+            case ')': addToken(TokenType::RIGHT_PAREN  ); break;    
+            case '{': addToken(TokenType::LEFT_BRACE   ); break;     
+            case '}': addToken(TokenType::RIGHT_BRACE  ); break;    
+            case ',': addToken(TokenType::COMMA        ); break;          
+            case '.': addToken(TokenType::DOT          ); break;            
+            case '-': addToken(TokenType::MINUS        ); break;          
+            case '+': addToken(TokenType::PLUS         ); break;           
+            case ';': addToken(TokenType::SEMICOLON    ); break;      
+            case '*': addToken(TokenType::STAR         ); break; 
 
             // two character lexeme
             case '!': addToken(matchToken('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;      

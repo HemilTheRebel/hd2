@@ -55,14 +55,13 @@ public:
 
 class LiteralExpr   : public Expr { 
 public: 
-    LiteralExpr  (std::string value)  : value(value) {}
+    LiteralExpr  (std::any value)  : value(value) {}
     std::any accept(ExprVisitor* visitor) override {
         return visitor->visitLiteralExpr  (this);
     }
 
 public: 
-
-    std::string value;
+    std::any value;
 };
 
 class UnaryExpr     : public Expr { 

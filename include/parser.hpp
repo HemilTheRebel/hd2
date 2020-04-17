@@ -22,7 +22,7 @@ class Parser {
     Expr* equality() {
         Expr* expr = comparison();
 
-        while (match({TokenType::BANG, TokenType::EQUAL_EQUAL})) {
+        while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
             Token Operator = previous();
             Expr* right = comparison();
             expr = new BinaryExpr(expr, Operator, right);
@@ -78,11 +78,15 @@ class Parser {
     }
 
     Expr* primary() {
-        if (match({TokenType::FALSE})) return new LiteralExpr("false");
-        if (match({TokenType::TRUE})) return new LiteralExpr("true");
-        if (match({TokenType::NIL})) return new LiteralExpr("null");
+        if (match({TokenType::FALSE})) return new LiteralExpr(false);
+        if (match({TokenType::TRUE})) return new LiteralExpr(true);
+        if (match({TokenType::NIL})) return new LiteralExpr(nullptr);
         
-        if (match({TokenType::NUMBER, TokenType::STRING})) {
+        if (match({TokenType::NUMBER})) {
+            return new LiteralExpr(std::stod(previous().literal));
+        }
+
+        if (match({TokenType::STRING})) {
             return new LiteralExpr(previous().literal);
         }
 

@@ -20,7 +20,7 @@ public:
     }
 
     std::any visitLiteralExpr(LiteralExpr* expr) override {
-        if (expr->value.empty())
+        if (!expr->value.has_value())
             return "nil";
         return expr->value;
     }
@@ -34,51 +34,18 @@ public:
         
         for (auto expr : exprs) {
             pp += " ";
-            pp += std::any_cast<std::string>(expr->accept(this));
+
+            auto result = expr->accept(this);
+
+            if (result.type() == typeid(bool))
+                pp += std::any_cast<bool>(result) ? "true" : "false";
+            else if (result.type() == typeid(double))
+                pp += std::to_string(std::any_cast<double>(result));
+            else
+                pp += std::any_cast<std::string>(result);
         }
-        return pp + ")";
+        pp += ")";
+
+        return pp;
     }
 };
-
-
-// class ASTPrinter : ExprVisitor {
-//     void parenthesize(const std::string& name, std::vector<Expr*> exprs) {
-//         std::string prettyPrint = "(" + name;
-
-//         std::cout << prettyPrint;
-//         for (auto expr : exprs) {
-//             std::cout << " ";
-//             expr->accept(this);
-//         }
-
-//         std::cout << ")";
-//     }
-
-//     public:
-
-//     void print(Expr *expr) {
-//         return expr->accept(this);
-//     }
-
-//     void visitBinaryExpr(BinaryExpr *expr) override {
-//         return parenthesize(expr->Operator.lexeme, {expr->left, expr->right});
-//     }
-
-//     void visitGroupingExpr(GroupingExpr *expr) override {
-//         return parenthesize("group", {expr->expression});
-//     }
-
-//     void visitLiteralExpr(LiteralExpr *expr) override {
-//         if (expr->value.empty()) {
-//             std::cout << "nil";
-//         }
-
-//         std::cout << expr->value;
-//     }
-
-//     void visitUnaryExpr(UnaryExpr *expr) override {
-//         return parenthesize(expr->Operator.lexeme, {expr->right});
-//     }
-
-
-// };

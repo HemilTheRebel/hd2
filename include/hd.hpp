@@ -6,8 +6,12 @@
 #include "errors.hpp"
 #include "parser.hpp"
 #include "ast_printer.hpp"
+#include "interpreter.hpp"
 
-class Lox {
+class HD {
+
+    Interpreter interpreter;
+
     void run(const std::string& input) {
         Scanner scanner(input);
         std::vector<Token> tokens = scanner.scanTokens();
@@ -16,14 +20,20 @@ class Lox {
             std::cout << token << "\n";
         }
 
+        std::cout << "\n";
+
         auto parser = std::make_unique<Parser>(tokens);
 
         Expr* expression = parser->parse();
 
         if (Errors::hadError) return;
 
-        ASTPrinter printer;
-        printer.print(expression);
+        auto result = ASTPrinter().print(expression);
+        std::cout << std::any_cast<std::string>(result);
+
+        std::cout << "\n";
+
+        interpreter.interpret(expression);
     }
 
     public:
@@ -35,9 +45,9 @@ class Lox {
 
         run(contents);
 
-        if (Errors::hadError) {
-            return 65;
-        }
+        if (Errors::hadError) return 65;
+
+        if (Errors::hadRuntimeError) return 70;
 
         return 0;
     }
