@@ -10,7 +10,7 @@ class Environment {
 
 public:
     void define(std::string name, std::any value) {
-        values.insert(std::make_pair(name, value));
+        values.insert_or_assign(name, value);
     }
 
     std::any get(Token name) {
