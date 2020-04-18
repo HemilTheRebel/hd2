@@ -63,7 +63,7 @@ public:
     }
 
     std::any visitGroupingExpr(GroupingExpr *expr) override {
-        return evaluate(expr);
+        return evaluate(expr->expression);
     }
 
     std::any visitUnaryExpr(UnaryExpr *expr) override {
