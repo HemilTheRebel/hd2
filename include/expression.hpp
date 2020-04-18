@@ -7,7 +7,8 @@ class BinaryExpr   ; // forward declare
 class GroupingExpr ; // forward declare
 class LiteralExpr  ; // forward declare
 class UnaryExpr    ; // forward declare
-class VariableExpr     ;
+class VariableExpr ;
+class AssignExpr   ;
 
 class ExprVisitor {
 public:
@@ -16,7 +17,8 @@ public:
     virtual std::any visitGroupingExpr (GroupingExpr * Expr) = 0;
     virtual std::any visitLiteralExpr  (LiteralExpr  * Expr) = 0;
     virtual std::any visitUnaryExpr    (UnaryExpr    * Expr) = 0;
-    virtual std::any visitVariableExpr (VariableExpr     * Expr) = 0;
+    virtual std::any visitVariableExpr (VariableExpr * Expr) = 0;
+    virtual std::any visitAssignExpr   (AssignExpr   * Expr) = 0;
 };
 
 // variables are intentionally public
@@ -88,4 +90,16 @@ public:
     }
 public:
     Token name;
+};
+
+class AssignExpr : public Expr {
+public:
+    AssignExpr(Token name, Expr *value) : name(name), value(value) {}
+
+    std::any accept(ExprVisitor *visitor) override {
+        return visitor->visitAssignExpr(this);
+    }
+public:
+    Token name;
+    Expr *value;
 };

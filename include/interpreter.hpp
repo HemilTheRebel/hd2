@@ -153,6 +153,13 @@ public:
         return nullptr;
     }
 
+    std::any visitAssignExpr(AssignExpr *expr) {
+        std::any value = evaluate(expr->value);
+
+        environment.assign(expr->name, value);
+        return value;
+    }
+
     /*Statement implementations*/
     void visitExpressionStmt(ExpressionStmt *stmt) override {
         evaluate(stmt->expression);

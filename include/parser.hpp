@@ -17,7 +17,25 @@ class Parser {
     int current = 0;
 
     Expr* expression() {
-        return equality();
+        return assignment();
+    }
+
+    Expr* assignment() {
+        Expr* expr = equality();
+
+        if (match({TokenType::EQUAL})) {
+            Token equals = previous();
+            Expr *value = assignment();
+
+            if (auto var = dynamic_cast<VariableExpr*>(expr)) {
+                Token name = var->name;
+                return new AssignExpr(name, value);
+            }
+
+            error(equals, "Invalid assignment target");
+        }
+
+        return expr;
     }
 
     Expr* equality() {

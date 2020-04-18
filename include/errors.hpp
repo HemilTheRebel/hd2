@@ -26,7 +26,7 @@ class Errors {
     }
 
     static void runtimeError(RuntimeError &e) {
-        std::cerr << e.what() << "\n[line " + std::to_string(e.token.line) + "]\n";
+        std::cerr << "\n[line " + std::to_string(e.token.line) + "]: " << e.what() << "\n";
         hadRuntimeError = true;
     }
 };
