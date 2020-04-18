@@ -57,7 +57,7 @@ class Interpreter final : public ExprVisitor, public StmtVisitor {
     }
 
     std::string stringify(std::any object) {
-        if (!object.has_value()) return "nil";
+        if (!object.has_value() || object.type() == typeid(nullptr_t)) return "nil";
  
         if (object.type() == typeid(double)) return std::to_string(std::any_cast<double>(object));
 
@@ -164,7 +164,10 @@ public:
     }
 
     void visitVarStmt(VarStmt *stmt) override {
-        std::any value = stmt->initializer == nullptr ? nullptr : evaluate(stmt->initializer);
+        std::any value;
+        
+        if (stmt->initializer != nullptr) 
+            value = evaluate(stmt->initializer);
 
         environment.define(stmt->name.lexeme, value);
     }
