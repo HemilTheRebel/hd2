@@ -1,8 +1,8 @@
-#include "../include/lox.hpp"
+#include "../include/hd.hpp"
 
 int main(int argc, char* argv[]) {
     
-    Lox lox;
+    HD hd;
 
     if (argc > 2) {
         std::cout << "Usage: jlox [script]\n";
@@ -10,9 +10,9 @@ int main(int argc, char* argv[]) {
     }
 
     if (argc == 2) {
-        return lox.runFile(argv[1]);
+        return hd.runFile(argv[1]);
     } else {
-        return lox.runPrompt();
+        return hd.runPrompt();
     }
 
 }

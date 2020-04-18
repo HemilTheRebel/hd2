@@ -5,6 +5,7 @@
 #include "tokens.hpp"
 #include "expression.hpp"
 #include "errors.hpp"
+#include "statement.hpp"
 
 class ParseError : public std::runtime_error {
     public:
@@ -16,13 +17,31 @@ class Parser {
     int current = 0;
 
     Expr* expression() {
-        return equality();
+        return assignment();
+    }
+
+    Expr* assignment() {
+        Expr* expr = equality();
+
+        if (match({TokenType::EQUAL})) {
+            Token equals = previous();
+            Expr *value = assignment();
+
+            if (auto var = dynamic_cast<VariableExpr*>(expr)) {
+                Token name = var->name;
+                return new AssignExpr(name, value);
+            }
+
+            error(equals, "Invalid assignment target");
+        }
+
+        return expr;
     }
 
     Expr* equality() {
         Expr* expr = comparison();
 
-        while (match({TokenType::BANG, TokenType::EQUAL_EQUAL})) {
+        while (match({TokenType::BANG_EQUAL, TokenType::EQUAL_EQUAL})) {
             Token Operator = previous();
             Expr* right = comparison();
             expr = new BinaryExpr(expr, Operator, right);
@@ -78,11 +97,15 @@ class Parser {
     }
 
     Expr* primary() {
-        if (match({TokenType::FALSE})) return new LiteralExpr("false");
-        if (match({TokenType::TRUE})) return new LiteralExpr("true");
-        if (match({TokenType::NIL})) return new LiteralExpr("null");
+        if (match({TokenType::FALSE})) return new LiteralExpr(false);
+        if (match({TokenType::TRUE})) return new LiteralExpr(true);
+        if (match({TokenType::NIL})) return new LiteralExpr(nullptr);
         
-        if (match({TokenType::NUMBER, TokenType::STRING})) {
+        if (match({TokenType::NUMBER})) {
+            return new LiteralExpr(std::stod(previous().literal));
+        }
+
+        if (match({TokenType::STRING})) {
             return new LiteralExpr(previous().literal);
         }
 
@@ -90,6 +113,10 @@ class Parser {
             Expr* expr = expression();
             consume(TokenType::RIGHT_PAREN, "Expect ')' after expression");
             return new GroupingExpr(expr);
+        }
+
+        if (match({TokenType::IDENTIFIER})) {
+            return new VariableExpr(previous());
         }
 
         throw error(peek(), "Expect expression");
@@ -172,14 +199,54 @@ class Parser {
         return tokens.at(current - 1);
     }
 
+    Stmt* statement() {
+        if (match({TokenType::PRINT})) return printStatement();
+
+        return expressionStatement();
+    }
+
+    Stmt* printStatement() {
+        Expr *value = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return new PrintStmt(value);
+    }
+
+    Stmt* expressionStatement() {
+        Expr* expr = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return new ExpressionStmt(expr);
+    }
+
+    Stmt* declaration() {
+        try {
+            if (match({TokenType::VAR})) return varDeclaration();
+
+            return statement();
+        } catch (ParseError &error) {
+            synchronize();
+            return nullptr;
+        }
+    }
+
+    Stmt* varDeclaration() {
+        Token name = consume(TokenType::IDENTIFIER, "Expect variable name");
+
+        Expr* initalizer = match({TokenType::EQUAL}) ? expression() : nullptr;
+
+        consume(TokenType::SEMICOLON, "Expect ; after variable declaration");
+        return new VarStmt(name, initalizer);
+    }
+
 public:
     Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
 
-    Expr* parse() {
-        try {
-            return expression();
-        } catch (ParseError& err) {
-            return nullptr;
+    std::vector<Stmt*> parse() {
+        std::vector<Stmt*> statements; 
+
+        while(!isAtEnd()) {
+            statements.push_back(declaration());
         }
+
+        return statements;
     }
 };
