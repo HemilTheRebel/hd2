@@ -16,24 +16,18 @@ class HD {
         Scanner scanner(input);
         std::vector<Token> tokens = scanner.scanTokens();
 
-        for(auto token : tokens) {
-            std::cout << token << "\n";
-        }
-
-        std::cout << "\n";
-
         auto parser = std::make_unique<Parser>(tokens);
 
-        Expr* expression = parser->parse();
+        auto statements = parser->parse();
 
         if (Errors::hadError) return;
 
-        auto result = ASTPrinter().print(expression);
-        std::cout << std::any_cast<std::string>(result);
+        // auto result = ASTPrinter().print(ast);
+        // std::cout << std::any_cast<std::string>(result);
 
-        std::cout << "\n";
+        // std::cout << "\n";
 
-        interpreter.interpret(expression);
+        interpreter.interpret(statements);
     }
 
     public:

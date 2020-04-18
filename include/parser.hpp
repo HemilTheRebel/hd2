@@ -5,6 +5,7 @@
 #include "tokens.hpp"
 #include "expression.hpp"
 #include "errors.hpp"
+#include "statement.hpp"
 
 class ParseError : public std::runtime_error {
     public:
@@ -176,14 +177,33 @@ class Parser {
         return tokens.at(current - 1);
     }
 
+    Stmt* statement() {
+        if (match({TokenType::PRINT})) return printStatement();
+
+        return expressionStatement();
+    }
+
+    Stmt* printStatement() {
+        Expr *value = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return new PrintStmt(value);
+    }
+
+    Stmt* expressionStatement() {
+        Expr* expr = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return new ExpressionStmt(expr);
+    }
 public:
     Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
 
-    Expr* parse() {
-        try {
-            return expression();
-        } catch (ParseError& err) {
-            return nullptr;
+    std::vector<Stmt*> parse() {
+        std::vector<Stmt*> statements; 
+
+        while(!isAtEnd()) {
+            statements.push_back(statement());
         }
+
+        return statements;
     }
 };

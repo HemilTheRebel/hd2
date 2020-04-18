@@ -5,11 +5,16 @@
 #include "expression.hpp"
 #include "errors.hpp"
 #include "runtime_error.hpp"
+// #include "statement.hpp"
 
-class Interpreter : public ExprVisitor {
+class Interpreter final : public ExprVisitor, public StmtVisitor {
 
     std::any evaluate(Expr *expr) {
         return expr->accept(this);
+    }
+
+    void evaluate(Stmt *stmt) {
+        stmt->accept(this);
     }
 
     bool isTrue(std::any expr) {
@@ -58,6 +63,8 @@ class Interpreter : public ExprVisitor {
         return std::any_cast<std::string>(object);
     }
 public:
+    /* Expression implementations */
+
     std::any visitLiteralExpr(LiteralExpr *expr) override {
         return expr->value;
     }
@@ -143,10 +150,23 @@ public:
         return nullptr;
     }
 
-    void interpret(Expr *expression) {
+    /*Statement implementations*/
+    void visitExpressionStmt(ExpressionStmt *stmt) override {
+        evaluate(stmt->expression);
+    }
+
+    void visitPrintStmt(PrintStmt *stmt) override {
+        std::any value = evaluate(stmt->expression);
+        std::cout << stringify(value) << "\n";
+    }
+
+    void interpret(std::vector<Stmt*> statments) {
         try {
-            std::any value = evaluate(expression);
-            std::cout << stringify(value);
+
+            for (auto stmt : statments) {
+                evaluate(stmt);
+            }
+            
         } catch (RuntimeError &e) {
             Errors::runtimeError(e);
         }
