@@ -6,8 +6,11 @@
 #include "errors.hpp"
 #include "runtime_error.hpp"
 // #include "statement.hpp"
+#include "environment.hpp"
 
 class Interpreter final : public ExprVisitor, public StmtVisitor {
+
+    Environment environment;
 
     std::any evaluate(Expr *expr) {
         return expr->accept(this);
@@ -158,6 +161,16 @@ public:
     void visitPrintStmt(PrintStmt *stmt) override {
         std::any value = evaluate(stmt->expression);
         std::cout << stringify(value) << "\n";
+    }
+
+    void visitVarStmt(VarStmt *stmt) override {
+        std::any value = stmt->initializer == nullptr ? nullptr : evaluate(stmt->initializer);
+
+        environment.define(stmt->name.lexeme, value);
+    }
+
+    std::any visitVariableExpr(VariableExpr *expr) override {
+        return environment.get(expr->name);
     }
 
     void interpret(std::vector<Stmt*> statments) {

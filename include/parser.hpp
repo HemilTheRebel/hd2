@@ -97,6 +97,10 @@ class Parser {
             return new GroupingExpr(expr);
         }
 
+        if (match({TokenType::IDENTIFIER})) {
+            return new VariableExpr(previous());
+        }
+
         throw error(peek(), "Expect expression");
     }
 
@@ -194,6 +198,27 @@ class Parser {
         consume(TokenType::SEMICOLON, "Expect ; after value");
         return new ExpressionStmt(expr);
     }
+
+    Stmt* declaration() {
+        try {
+            if (match({TokenType::VAR})) return varDeclaration();
+
+            return statement();
+        } catch (ParseError &error) {
+            synchronize();
+            return nullptr;
+        }
+    }
+
+    Stmt* varDeclaration() {
+        Token name = consume(TokenType::IDENTIFIER, "Expect variable name");
+
+        Expr* initalizer = match({TokenType::EQUAL}) ? expression() : nullptr;
+
+        consume(TokenType::SEMICOLON, "Expect ; after variable declaration");
+        return new VarStmt(name, initalizer);
+    }
+
 public:
     Parser(const std::vector<Token>& tokens) : tokens(tokens) {}
 
@@ -201,7 +226,7 @@ public:
         std::vector<Stmt*> statements; 
 
         while(!isAtEnd()) {
-            statements.push_back(statement());
+            statements.push_back(declaration());
         }
 
         return statements;
